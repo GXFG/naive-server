@@ -4,24 +4,24 @@ import { ApiTags } from '@nestjs/swagger';
 import { ScreenshotService } from '@/screenshot/screenshot.service';
 import { ScreenshotDto } from '@/screenshot/dto/screenshot.dto';
 
-@ApiTags('screenshot')
+@ApiTags('截屏')
 @Controller('screenshot')
 export class ScreenshotController {
   constructor(private screenshotService: ScreenshotService) {}
 
   @Get()
-  async getOssUrlFromScreenshot(@Query() screenshotDto: ScreenshotDto): Promise<any> {
+  async getOssUrlFromScreenshot(@Query() query: ScreenshotDto): Promise<any> {
     const params = {
-      ...screenshotDto,
-      url: RegExp(/http/).exec(screenshotDto.url) ? screenshotDto.url : `http://${screenshotDto.url}`,
-      device: screenshotDto.device || 'h5',
-      width: screenshotDto.width || '750',
-      height: screenshotDto.height || '1334',
-      type: screenshotDto.type || 'jpg',
-      format: screenshotDto.format || 'a4',
-      scale: screenshotDto.scale || '1',
-      quality: parseInt(`${screenshotDto.quality || 60}`, 10),
-      autocontrol: screenshotDto.autocontrol || '1',
+      ...query,
+      url: RegExp(/http/).exec(query.url) ? query.url : `http://${query.url}`,
+      device: query.device || 'h5',
+      width: query.width || '750',
+      height: query.height || '1334',
+      type: query.type || 'jpg',
+      format: query.format || 'a4',
+      scale: query.scale || '1',
+      quality: parseInt(`${query.quality || 60}`, 10),
+      autocontrol: query.autocontrol || '1',
     };
     const res = await this.screenshotService.getImgPath(params);
     const fileUrl = '';

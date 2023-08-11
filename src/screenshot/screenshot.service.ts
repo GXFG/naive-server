@@ -88,6 +88,7 @@ export class ScreenshotService {
     let hasLoadCompleteTag = false;
     if (autocontrol === '0') {
       try {
+        // 等待页面出现元素#load-complete
         await page.waitForSelector('#load-complete', {
           timeout: TIMEOUT,
           visible: true,
