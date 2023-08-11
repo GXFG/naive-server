@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ScreenshotService } from './screenshot.service';
+import { ScreenshotService } from '@/screenshot/screenshot.service';
 
 describe('ScreenshotService', () => {
   let service: ScreenshotService;

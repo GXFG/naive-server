@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ScreenshotController } from './screenshot.controller';
+import { ScreenshotController } from '@/screenshot/screenshot.controller';
 
 describe('ScreenshotController', () => {
   let controller: ScreenshotController;

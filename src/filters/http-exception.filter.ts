@@ -1,29 +1,39 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Catch, ExceptionFilter, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Request, Response } from 'express';
 
-@Catch(HttpException)
+// 参数为空捕获每一个未处理的异常， @Catch(HttpException)仅捕获Http异常
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-    const message = exception.getResponse().message || exception.message || 'fail';
-    const statusCode = exception.getStatus() || 500;
+    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<Response>();
 
-    Logger.error('请求错误', `${statusCode} ${request.originalUrl} ${JSON.stringify(message)}`);
+    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'INTERNAL_SERVER_ERROR';
+
+    if (exception instanceof HttpException) {
+      const exceptionRes = exception.getResponse();
+      statusCode = exception.getStatus();
+      if (typeof exceptionRes === 'string') {
+        message = exceptionRes;
+      } else if (typeof exceptionRes === 'object' && 'message' in exceptionRes) {
+        message = exceptionRes.message.toString();
+      } else {
+        message = exception.message;
+      }
+    }
+
+    Logger.error('请求错误', `${statusCode} ${request.originalUrl} ${message}`);
 
     const errorResponse = {
-      data: {
-        error: exception.message,
-      },
-      message: message,
       code: statusCode,
-      url: request.originalUrl,
+      message,
+      path: request.originalUrl,
+      timestamp: new Date().getTime(),
     };
 
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    response.status(status);
-    response.header('Content-Type', 'application/json; charset=utf-8');
-    response.send(errorResponse);
+    // response.header('Content-Type', 'application/json; charset=utf-8');
+    response.status(statusCode).json(errorResponse);
   }
 }

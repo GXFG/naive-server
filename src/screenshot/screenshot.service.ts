@@ -4,8 +4,8 @@ import * as dayjs from 'dayjs';
 import puppeteer, { KnownDevices } from 'puppeteer';
 import { Injectable } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
-import { getNonDuplicateId } from '../common/utils';
-import { ScreenshotDto } from './dto/screenshot.dto';
+import { getNonDuplicateId } from '@/common/utils';
+import { ScreenshotDto } from '@/screenshot/dto/screenshot.dto';
 
 const DESKTOP_DEVICE = {
   name: 'Desktop 1920x1080',

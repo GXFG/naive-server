@@ -9,9 +9,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
   app.setGlobalPrefix('api');
-
+  // app.enableCors();
   // app.use(helmet()); // xss
   // app.use(csurf());
   app.useGlobalPipes(new ValidationPipe()); // 验证器
@@ -25,7 +24,8 @@ async function bootstrap() {
   }
 
   await app.listen(5555);
-  Logger.log('服务已经启动，http://localhost:5555/api，http://localhost:5555/swagger');
+  Logger.log('服务已启动: http://localhost:5555/api');
+  Logger.log('api文档: http://localhost:5555/swagger');
 }
 
 bootstrap();

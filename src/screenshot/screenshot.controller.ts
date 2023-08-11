@@ -1,11 +1,10 @@
 // import fs = require('fs');
+import { Controller, Get, Query, Logger } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Controller, Get, Query } from '@nestjs/common';
-import { ScreenshotService } from './screenshot.service';
-import { ScreenshotDto } from './dto/screenshot.dto';
-import { Logger } from '@nestjs/common';
+import { ScreenshotService } from '@/screenshot/screenshot.service';
+import { ScreenshotDto } from '@/screenshot/dto/screenshot.dto';
 
-@ApiTags('截图')
+@ApiTags('screenshot')
 @Controller('screenshot')
 export class ScreenshotController {
   constructor(private screenshotService: ScreenshotService) {}
@@ -24,10 +23,6 @@ export class ScreenshotController {
       quality: parseInt(`${screenshotDto.quality || 60}`, 10),
       autocontrol: screenshotDto.autocontrol || '1',
     };
-    if (params.scale === '0.99') {
-      // Temp 暂时适配检测参数，待检测同步参数后可删除
-      params.autocontrol = '0';
-    }
     const res = await this.screenshotService.getImgPath(params);
     const fileUrl = '';
 
@@ -55,7 +50,7 @@ export class ScreenshotController {
     };
     if (params.autocontrol === '1') {
       // 自动控制
-      delete httpRes.hasLoadCompleteTag;
+      Reflect.deleteProperty(httpRes, 'hasLoadCompleteTag');
     }
 
     return httpRes;

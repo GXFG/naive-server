@@ -30,18 +30,7 @@ export class ScreenshotDto {
   type?: 'jpg' | 'pdf';
 
   @IsOptional()
-  format?:
-    | 'letter'
-    | 'legal'
-    | 'tabloid'
-    | 'ledger'
-    | 'a0'
-    | 'a1'
-    | 'a2'
-    | 'a3'
-    | 'a4'
-    | 'a5'
-    | 'a6';
+  format?: 'letter' | 'legal' | 'tabloid' | 'ledger' | 'a0' | 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6';
 
   @ApiProperty({
     description: 'pdf缩放比例，between `0.1` and `2`.',
