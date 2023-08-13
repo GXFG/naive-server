@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import puppeteer, { KnownDevices } from 'puppeteer';
+import { News } from './entities/news.entity';
+import { NewsItem } from './dto/news-item.dto';
 
 const DESKTOP_DEVICE = {
   name: 'Desktop 1920x1080',
@@ -12,18 +17,45 @@ const DESKTOP_DEVICE = {
 
 @Injectable()
 export class CrawlerService {
-  constructor() {}
+  constructor(
+    @InjectRepository(News)
+    private newsRepository: Repository<News>,
 
-  async getBaiduTrending() {
+    private readonly configService: ConfigService,
+  ) {}
+
+  private async initBrowser(url: string) {
     const browser = await puppeteer.launch({
       headless: 'new',
       args: ['--disable-gpu', '--disable-dev-shm-usage', '--disable-setuid-sandbox', '--no-first-run', '--no-sandbox', '--no-zygote', '--single-process', '--mute-audio'],
-      timeout: 10000,
+      timeout: this.configService.get('PUPPETEER_TIMEOUT'),
     });
     const page = await browser.newPage();
     await page.emulate(DESKTOP_DEVICE);
-    await page.goto('https://top.baidu.com/board?tab=realtime', { waitUntil: 'networkidle0' });
+    await page.goto(url, { waitUntil: 'networkidle0' });
+    return { browser, page };
+  }
 
+  private async saveNewsData(source: string, newsList: NewsItem[], prevData: News) {
+    const payload = {
+      source,
+      ...prevData,
+      news: JSON.stringify(newsList),
+      update_time: new Date(),
+    };
+    return await this.newsRepository.save(payload);
+  }
+
+  async getNewsData(source: string) {
+    return await this.newsRepository.findOne({
+      where: {
+        source,
+      },
+    });
+  }
+
+  async updateBaiduTrending() {
+    const { browser, page } = await this.initBrowser('https://top.baidu.com/board?tab=realtime');
     const pageTitle = await page.title();
 
     const hotList = await page.evaluate(() => {
@@ -47,6 +79,10 @@ export class CrawlerService {
     });
 
     await browser.close();
+
+    const existNews = await this.getNewsData('baidu');
+    this.saveNewsData('baidu', hotList, existNews);
+    Logger.log('saveNewsData baidu');
 
     return {
       title: pageTitle,

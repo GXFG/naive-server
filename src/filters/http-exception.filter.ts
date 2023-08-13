@@ -4,13 +4,13 @@ import { Request, Response } from 'express';
 // 参数为空捕获每一个未处理的异常， @Catch(HttpException)仅捕获Http异常
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'INTERNAL_SERVER_ERROR';
+    let message = exception.message || 'internal server error';
 
     if (exception instanceof HttpException) {
       const exceptionRes = exception.getResponse();
