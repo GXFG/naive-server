@@ -1,21 +1,20 @@
-# https://nodejs.org/zh-cn/docs/guides/nodejs-docker-webapp
-FROM node:18
+FROM node:18.16.0
 
-# Create app directory
-WORKDIR /usr/src/app
+# pnpm会继承npm的配置
+RUN npm config set registry https://registry.npmmirror.com
+RUN npm install -g pnpm pm2
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+ADD package.json /tmp/package.json
+ADD pnpm-lock.yaml /tmp/pnpm-lock.yaml
+RUN cd /tmp && pnpm install && cd -
+RUN mkdir -p /home/naive-sever && cp -a /tmp/node_modules /home/naive-sever/
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --omit=dev
-
-# Bundle app source
-COPY . .
+# 如果WORKDIR不存在，它将被自动创建，无需执行 RUN mkdir -p /home/naive-sever
+WORKDIR /home/naive-sever
+COPY . /home/naive-sever
+RUN pnpm run build
+RUN mkdir -p /home/pm2log
 
 EXPOSE 5555
 
-CMD [ "npm", 'run', "pm2:start-prod" ]
+CMD [ "pnpm", "run", "pm2:start-prod" ]
