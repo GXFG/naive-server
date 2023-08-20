@@ -17,8 +17,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "pm2:start-dev": "NODE_ENV=development pm2 start dist/src/main.js --name naive-server -l /home/pm2log/naive-server.dev.log",
-    "pm2:start-prod": "NODE_ENV=production pm2 start dist/src/main.js --name naive-server -l /home/pm2log/naive-server.log",
+    "pm2:start-dev": "NODE_ENV=development pm2 start dist/src/main.js --name naive-server --no-daemon -l /home/pm2log/naive-server.dev.log",
+    "pm2:start-prod": "NODE_ENV=production pm2 start dist/src/main.js --name naive-server --no-daemon -l /home/pm2log/naive-server.log",
     "pm2:restart": "pm2 restart naive-server"
   },
   "dependencies": {
